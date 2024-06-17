@@ -1,8 +1,27 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
+import { SubmitHandler, useForm } from 'react-hook-form'
+
+type LoginForm = {
+  email: string;
+  password: string
+  remeber: boolean
+}
 export default function LoginPage() {
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>()
+
+  const onSubmit: SubmitHandler<LoginForm> = (data) => {
+    console.log(data)
+
+    signIn('credentials', { redirect: false })
+  }
+
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-950">
       <div className="w-full max-w-md space-y-8">
@@ -11,19 +30,19 @@ export default function LoginPage() {
             Sign in to your account
           </h2>
         </div>
-        <form className="space-y-6" action="#" method="POST">
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div>
             <Label htmlFor="email" className="sr-only">
               Email address
             </Label>
             <Input
               id="email"
-              name="email"
               type="email"
               autoComplete="email"
               required
               className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50 dark:placeholder-gray-400"
               placeholder="Email address"
+              {...register('email')}
             />
           </div>
           <div>
@@ -32,12 +51,12 @@ export default function LoginPage() {
             </Label>
             <Input
               id="password"
-              name="password"
               type="password"
               autoComplete="current-password"
               required
               className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50 dark:placeholder-gray-400"
               placeholder="Password"
+              {...register('password')}
             />
           </div>
           <div>
@@ -50,9 +69,9 @@ export default function LoginPage() {
           <div className="flex items-center">
             <input
               id="remember-me"
-              name="remember-me"
               type="checkbox"
               className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:ring-offset-gray-950"
+              {...register('remeber')}
             />
             <Label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-50">
               Remember me
