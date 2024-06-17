@@ -1,4 +1,4 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, Session } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 export const nextAuthOptions: NextAuthOptions = {
@@ -48,10 +48,22 @@ export const nextAuthOptions: NextAuthOptions = {
     })
 
   ],
+  callbacks: { //  =====> Add Below Callbacks <=====
+    jwt: async ({ user }) => {
+      return { ...user };
+    },
+    session: async ({ session, token }) => {
+      session.user = token.user;
+      session.user.token = token.token;
+
+      console.log(session)
+      return session;
+    },
+  },
 
   pages: {
     signIn: '/login',
     error: '/login',
-  }
-
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 }

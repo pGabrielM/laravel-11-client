@@ -7,6 +7,7 @@ import Link from "next/link";
 export default function Header() {
   const session = useSession()
   const userStatus = session.status
+  console.log(session.data?.user)
 
   return (
     <header className="bg-gray-900 text-white py-4 px-6 flex justify-between">
