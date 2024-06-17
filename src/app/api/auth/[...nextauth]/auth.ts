@@ -4,36 +4,46 @@ import Credentials from "next-auth/providers/credentials";
 export const nextAuthOptions: NextAuthOptions = {
   providers: [
     Credentials({
-      // The name to display on the sign in form (e.g. 'Sign in with...')
       name: 'Credentials',
-      // The credentials is used to generate a suitable form on the sign in page.
-      // You can specify whatever fields you are expecting to be submitted.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
+        email: { label: "Email", type: "email", placeholder: "Email address" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
-        // You need to provide your own logic here that takes the credentials
-        // submitted and returns either a object representing a user or value
-        // that is false/null if the credentials are invalid.
-        // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
-        // You can also use the `req` object to obtain additional parameters
-        // (i.e., the request IP address)
-        const res = await fetch(`${process.env.NEXT_API_URL}/login`, {
+        const csrfRespoonse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sanctum/csrf-cookie`, {
+          method: "GET",
+        })
+
+        const setCookieHeader = csrfRespoonse.headers.get("set-cookie")
+        const cookies = setCookieHeader?.split(", ")
+        let sessionKey = null
+        let xsrfToken = null
+
+        for (const cookie of cookies!) {
+          if (cookie.startsWith("laravel_session=")) {
+            sessionKey = cookie.split("=")[1]
+          } else if (cookie.startsWith("XSRF-TOKEN=")) {
+            xsrfToken = cookie.split("=")[1]
+          }
+
+          if (sessionKey && xsrfToken) {
+            break
+          }
+        }
+
+        const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
           method: 'POST',
           body: JSON.stringify(credentials),
           headers: { "Content-Type": "application/json" }
         })
-        const user = await res.json()
 
-        // If no error and we have user data, return it
-        if (res.ok && user) {
+        const user = await userResponse.json()
+
+        if (userResponse.ok && user) {
           return user
         }
-        // Return null if user data could not be retrieved
-        return null
+
+        throw new Error(user.message)
       }
     })
 
@@ -41,7 +51,7 @@ export const nextAuthOptions: NextAuthOptions = {
 
   pages: {
     signIn: '/login',
-    error: '/error',
+    error: '/login',
   }
 
 }

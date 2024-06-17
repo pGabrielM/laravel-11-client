@@ -3,8 +3,11 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { toast } from '@/components/ui/use-toast'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
 type LoginForm = {
@@ -13,14 +16,29 @@ type LoginForm = {
   remeber: boolean
 }
 export default function LoginPage() {
+  const [error, setError] = useState<string | null>()
+  const router = useRouter()
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>()
 
-  const onSubmit: SubmitHandler<LoginForm> = (data) => {
-    console.log(data)
+  const onSubmit: SubmitHandler<LoginForm> = async (data) => {
+    setError(null)
 
-    signIn('credentials', { redirect: false })
+    const res = await signIn('credentials', { redirect: false, email: data.email, password: data.password })
+
+    if (!res?.ok) {
+      return setError(res?.error)
+    }
+    router.push('/')
+
+    toast({
+      title: "Successfully authenticated",
+      description: "You have successfully authenticated",
+      variant: 'success'
+    })
+
+
+
   }
-
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-950">
@@ -64,6 +82,11 @@ export default function LoginPage() {
               Sign in
             </Button>
           </div>
+          <div className='h-2'>
+            <p className="text-sm text-red-600 dark:text-red-400 text-center">
+              {error}
+            </p>
+          </div>
         </form>
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -100,6 +123,6 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
-    </div>
+    </div >
   )
 }
