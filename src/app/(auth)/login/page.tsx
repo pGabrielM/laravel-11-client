@@ -28,6 +28,7 @@ export default function LoginPage() {
     if (!res?.ok) {
       return setError(res?.error)
     }
+
     router.push('/')
 
     toast({
@@ -35,9 +36,6 @@ export default function LoginPage() {
       description: "You have successfully authenticated",
       variant: 'success'
     })
-
-
-
   }
 
   return (
