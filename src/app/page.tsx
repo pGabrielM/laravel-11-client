@@ -31,7 +31,11 @@ export default function Home() {
   return (
     <main className="flex-1 p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">Community Tasks</h2>
+        {session.status == 'authenticated' ?
+          <h2 className="text-xl font-bold">Your Tasks</h2>
+          :
+          <h2 className="text-xl font-bold">Community Tasks</h2>
+        }
         {session.status == 'authenticated' &&
           <Button>Create New Task</Button>
         }
