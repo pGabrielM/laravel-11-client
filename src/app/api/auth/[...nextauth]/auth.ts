@@ -1,4 +1,5 @@
-import { NextAuthOptions, Session } from "next-auth";
+import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next";
+import { NextAuthOptions, Session, getServerSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 export const nextAuthOptions: NextAuthOptions = {
@@ -48,15 +49,14 @@ export const nextAuthOptions: NextAuthOptions = {
     })
 
   ],
-  callbacks: { //  =====> Add Below Callbacks <=====
-    jwt: async ({ user }) => {
-      return { ...user };
+  callbacks: {
+    jwt: async ({ user, token }) => {
+      return { ...user, token };
     },
     session: async ({ session, token }) => {
       session.user = token.user;
       session.user.token = token.token;
 
-      console.log(session)
       return session;
     },
   },

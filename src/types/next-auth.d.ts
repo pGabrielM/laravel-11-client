@@ -12,7 +12,7 @@ declare module "next-auth" {
       email_verified_at: string
       password: string
       token: string
-    }
+    } & DefaultSession["user"]
 
   }
 }
