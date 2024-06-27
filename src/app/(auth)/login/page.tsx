@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
-type LoginForm = {
+interface LoginForm {
   email: string;
   password: string
   remeber: boolean

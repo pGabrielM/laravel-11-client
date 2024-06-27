@@ -5,6 +5,7 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/comp
 import TasksResponse from "@/types/tasks";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import TasksCreationModal from "./components/tasks/task-creation-modal";
 
 
 export default function Home() {
@@ -28,6 +29,7 @@ export default function Home() {
     getTasks()
   }, [])
 
+
   return (
     <main className="flex-1 p-6">
       <div className="flex justify-between items-center mb-6">
@@ -36,16 +38,18 @@ export default function Home() {
           :
           <h2 className="text-xl font-bold">Community Tasks</h2>
         }
-        {session.status == 'authenticated' &&
-          <Button>Create New Task</Button>
-        }
+        <div>
+          {session.status == 'authenticated' &&
+            <TasksCreationModal />
+          }
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {error &&
           <p className="text-gray-500">Failed to fetch tasks</p>
         }
         {tasks?.data.data.map((task, id) => (
-          <Card>
+          <Card key={id}>
             <CardHeader>
               <CardTitle>{task.name}</CardTitle>
               <CardDescription>{task.description}</CardDescription>
