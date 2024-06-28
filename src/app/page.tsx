@@ -11,9 +11,10 @@ import TasksCreationModal from "./components/tasks/task-creation-modal";
 export default function Home() {
   const [tasks, setTasks] = useState<TasksResponse>()
   const [error, setError] = useState<string>()
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const session = useSession()
 
-  const getTasks = async () => {
+  const getPublicTasks = async () => {
     const res = await fetch('/api/task')
 
     if (!res.ok) {
@@ -23,12 +24,29 @@ export default function Home() {
     const data = await res.json()
 
     setTasks(data)
+    setIsLoading(false)
+  }
+
+  const getPrivateTasks = async () => {
+    const res = await fetch('/api/user/task')
+
+    if (!res.ok) {
+      return setError(res.statusText)
+    }
+
+    const data = await res.json()
+
+    setTasks(data)
+    setIsLoading(false)
   }
 
   useEffect(() => {
-    getTasks()
-  }, [])
-
+    if (session.status == 'authenticated') {
+      getPrivateTasks()
+    } else {
+      getPublicTasks()
+    }
+  }, [session])
 
   return (
     <main className="flex-1 p-6">
@@ -47,6 +65,9 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {error &&
           <p className="text-gray-500">Failed to fetch tasks</p>
+        }
+        {isLoading &&
+          <p className="text-gray-500">Loading</p>
         }
         {tasks?.data.data.map((task, id) => (
           <Card key={id}>
