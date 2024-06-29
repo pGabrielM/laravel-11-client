@@ -5,11 +5,11 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/comp
 import TasksResponse from "@/types/tasks";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import TasksCreationModal from "./components/tasks/task-creation-modal";
-
+import TasksCreationModal from "../components/tasks/TaskCreateModal";
+import TaskDeleteModal from "@/components/tasks/TaskDeleteModal";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<TasksResponse>()
+  const [tasks, setTasks] = useState<TasksResponse | null>(null)
   const [error, setError] = useState<string>()
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const session = useSession()
@@ -19,6 +19,7 @@ export default function Home() {
 
     if (!res.ok) {
       setIsLoading(false)
+      setTasks(null)
       return setError(res.statusText)
     }
 
@@ -42,7 +43,7 @@ export default function Home() {
         }
         <div>
           {session.status == 'authenticated' &&
-            <TasksCreationModal />
+            <TasksCreationModal getTasks={getTasks} />
           }
         </div>
       </div>
@@ -52,6 +53,9 @@ export default function Home() {
         }
         {isLoading &&
           <p className="text-gray-500">Loading</p>
+        }
+        {tasks?.data.meta.total == 0 &&
+          <p className="text-gray-500">There are no tasks registered.</p>
         }
         {tasks?.data.data.map((task, id) => (
           <Card key={id}>
@@ -64,7 +68,7 @@ export default function Home() {
               {session.status == 'authenticated' &&
                 <div className="flex gap-2">
                   <Button variant="default">Edit</Button>
-                  <Button variant="destructive">Delete</Button>
+                  <TaskDeleteModal task={task} getTasks={getTasks} />
                 </div>
               }
             </CardFooter>
