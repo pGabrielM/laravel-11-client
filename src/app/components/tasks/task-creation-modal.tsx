@@ -20,20 +20,20 @@ export default function TasksCreationModal() {
 
   const onSubmit: SubmitHandler<Task> = async (data) => {
     setError(null)
-
     console.log(data)
-
-    const res = await fetch('/api/task', {
+    const res = await fetch('/api/user/task', {
       method: 'POST',
       body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json'
-      }
     })
 
-    if (!res?.ok) {
-      return setError(res?.error)
+    if (!res.ok) {
+      return setError(res.statusText)
     }
+
+    const task = await res.json()
+
+    console.log(task)
+
 
     toast({
       title: "Successfully created a task",
@@ -43,7 +43,7 @@ export default function TasksCreationModal() {
   }
 
   return (
-    <Dialog defaultOpen>
+    <Dialog>
       <DialogTrigger asChild>
         <Button>Create Task</Button>
       </DialogTrigger>

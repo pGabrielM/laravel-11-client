@@ -14,23 +14,11 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const session = useSession()
 
-  const getPublicTasks = async () => {
-    const res = await fetch('/api/task')
+  const getTasks = async () => {
+    const res = await fetch(session.status == 'authenticated' ? '/api/user/task' : '/api/task')
 
     if (!res.ok) {
-      return setError(res.statusText)
-    }
-
-    const data = await res.json()
-
-    setTasks(data)
-    setIsLoading(false)
-  }
-
-  const getPrivateTasks = async () => {
-    const res = await fetch('/api/user/task')
-
-    if (!res.ok) {
+      setIsLoading(false)
       return setError(res.statusText)
     }
 
@@ -41,11 +29,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (session.status == 'authenticated') {
-      getPrivateTasks()
-    } else {
-      getPublicTasks()
-    }
+    getTasks()
   }, [session])
 
   return (
